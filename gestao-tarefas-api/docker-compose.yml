@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: gestao-tarefas-api
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres123@db:5432/gestao_tarefas_db
       - APP_ENV=development

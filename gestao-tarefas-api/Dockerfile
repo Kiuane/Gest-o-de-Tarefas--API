@@ -1,41 +1,42 @@
-# Dockerfile com UV para gerenciamento de dependencias
-FROM python:3.13-slim
+FROM python:3.11-slim
 
-# Metadados
 LABEL maintainer="sua-equipe@universidade.edu"
 LABEL description="API de Gestao de Tarefas com FastAPI + UV"
 
-# Variaveis de ambiente Python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Instalar UV
-RUN pip install --no-cache-dir uv
-
-# Diretorio de trabalho
 WORKDIR /app
 
-# Instalar dependencias do sistema para psycopg2
+# Dependencias do sistema (PostgreSQL + healthcheck)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar TUDO para /app
+# Instalar Uvicorn e dependências via requirements.txt
+RUN pip install --no-cache-dir \
+    fastapi>=0.115.0 \
+    "uvicorn[standard]>=0.34.0" \
+    sqlalchemy>=2.0.36 \
+    psycopg2-binary>=2.9.10 \
+    pydantic>=2.10.4 \
+    pydantic-settings>=2.7.0 \
+    python-dotenv>=1.0.1 \
+    "passlib[bcrypt]>=1.7.4" \
+    "python-jose[cryptography]>=3.3.0" \
+    email-validator>=2.2.0 \
+    python-multipart>=0.0.20
+
+# Copiar o resto do projeto
 COPY . .
 
-# Instalar dependencias do pyproject.toml (sem instalar o pacote em si)
-RUN uv pip install --system fastapi uvicorn sqlalchemy psycopg2-binary pydantic pydantic-settings python-dotenv passlib email-validator python-multipart
-
-# Expor porta
 EXPOSE 8000
 
-# Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Comando para iniciar aplicacao
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.app:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -124,3 +124,14 @@ class HealthResponse(BaseModel):
     status: str
     database: str
     environment: str
+
+
+# ============ SCHEMAS: AUTH/TOKEN ============
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int | None = None
+
+
+class TokenData(BaseModel):
+    email: str | None = None

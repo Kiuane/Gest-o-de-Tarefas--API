@@ -7,11 +7,12 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        case_sensitive=False
+        case_sensitive=False,
+        extra="allow",
     )
-    
+
     # Banco de Dados
-    database_url: str = "postgresql://postgres:postgres@db:5432/gestao_tarefas_db"
+    database_url: str = "postgresql://postgres:postgres123@db:5432/gestao_tarefas_db"
     
     # Aplicação
     app_env: str = "development"
@@ -22,6 +23,10 @@ class Settings(BaseSettings):
     api_title: str = "API de Gestão de Tarefas Escolares"
     api_description: str = "API REST para gestão de tarefas, alunos, turmas e disciplinas"
     api_version: str = "1.0.0"
+    
+    # JWT / Auth
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60
     
     @property
     def is_development(self) -> bool:
